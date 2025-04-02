@@ -1,6 +1,7 @@
 LOCAL_BIN=$(CURDIR)/bin
 DC_NEW := docker compose
 DC_OLD := docker-compose
+PROD_CONFIG_PATH := ./internal/configs/app/prod.toml
 
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
@@ -26,6 +27,6 @@ grpc-serve:
 	go run cmd/grpc/main.go
 
 run-dc:
-	$(DC_NEW) --project-name auth -f docker/docker-compose.yaml up -d --build
+	CONFIG_PATH=$(PROD_CONFIG_PATH) $(DC_NEW) --project-name auth -f docker-compose.yaml up -d --build
 down-dc:
-	$(DC_NEW) --project-name auth -f docker/docker-compose.yaml down --remove-orphans
+	$(DC_NEW) --project-name auth -f docker-compose.yaml down --remove-orphans

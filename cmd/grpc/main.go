@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/fatih/color"
-	grpcDelivery "github.com/vrnxx/auth/internal/delivery/grpc"
+	grpcDelivery "github.com/vrnxx/auth/internal/presentation/api/delivery/grpc"
 	desc "github.com/vrnxx/auth/pkg/user_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

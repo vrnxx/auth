@@ -3,6 +3,7 @@ module github.com/vrnxx/auth
 go 1.24.1
 
 require (
+	github.com/BurntSushi/toml v1.5.0
 	github.com/brianvoe/gofakeit/v7 v7.2.1
 	github.com/fatih/color v1.18.0
 	google.golang.org/grpc v1.65.0

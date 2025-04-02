@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  http_api:
+    container_name: auth.http_api
+    build:
+      context: .
+      dockerfile: grpcAPI.Dockerfile
+    restart: on-failure
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    command: [ "./main" ]
+    environment:
+      - CONFIG_PATH=${CONFIG_PATH:-./usr/local/bin/prod.toml}
+    depends_on:
+      pg:
+        condition: service_healthy
+  pg:
+    container_name: auth.postgres
+    image: postgres:17-alpine3.21
+    ports:
+      - "54321:5432"
+    environment:
+      - POSTGRES_DB=test
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_password
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+
+volumes:
+  pg_data:
+
+    
