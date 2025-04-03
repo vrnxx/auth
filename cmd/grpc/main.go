@@ -2,18 +2,25 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net"
+
 	"github.com/fatih/color"
+	infraConf "github.com/vrnxx/auth/internal/infrastructure/config"
 	grpcDelivery "github.com/vrnxx/auth/internal/presentation/api/delivery/grpc"
+	mainConf "github.com/vrnxx/auth/internal/presentation/config"
 	desc "github.com/vrnxx/auth/pkg/user_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
 )
 
 const grpcPort = ":55031"
 
 func main() {
+	c := mainConf.Config{}
+	infraConf.LoadConfig(&c, "")
+	fmt.Println(color.GreenString("loaded config: %v", c))
+
 	lis, err := net.Listen("tcp", grpcPort)
 	if err != nil {
 		log.Fatal(color.RedString("net.Listen error: %s", err.Error()))

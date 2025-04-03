@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	infraConf "github.com/vrnxx/auth/internal/infrastructure/config"
 	mainConf "github.com/vrnxx/auth/internal/presentation/config"
-	"net/http"
 )
+
+// Для проверки того, что конфиг нормально парсится
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
@@ -15,7 +18,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	c := mainConf.Config{}
-	infraConf.LoadConfig(&c, "/home/am/Projectus/study/homework/auth/internal/configs/app/dev.toml")
+	infraConf.LoadConfig(&c, "")
 	fmt.Println(c)
 
 	http.HandleFunc("/", handler)

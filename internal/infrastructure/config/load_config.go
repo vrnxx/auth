@@ -1,8 +1,10 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/BurntSushi/toml"
-	_ "github.com/BurntSushi/toml"
+	"github.com/fatih/color"
 	"github.com/vrnxx/auth/pkg/env"
 )
 
@@ -13,13 +15,14 @@ func LoadConfig(c interface{}, absolutePath string) {
 	if absolutePath == "" {
 		if envPath := env.GetEnv("CONFIG_PATH", ""); envPath != "" {
 			pathConf = envPath
+		} else {
+			pathConf = DefaultConfigPath
 		}
-		pathConf = DefaultConfigPath
 	} else {
 		pathConf = absolutePath
 	}
 	_, err := toml.DecodeFile(pathConf, c)
 	if err != nil {
-		panic(err)
+		fmt.Println(color.RedString(err.Error()))
 	}
 }

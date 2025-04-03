@@ -1,7 +1,11 @@
 LOCAL_BIN=$(CURDIR)/bin
 DC_NEW := docker compose
 DC_OLD := docker-compose
-PROD_CONFIG_PATH := ./internal/configs/app/prod.toml
+
+DEV_DEFAULT_CONFIG_FILENAME := "dev.toml"
+PROD_DEFAULT_CONFIG_FILENAME := "prod.toml"
+
+# ========================Installing deps & tools============================= #
 
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
@@ -10,6 +14,8 @@ install-deps:
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+# ==========================Generate GRPC===================================== #
 
 generate:
 	make generate-user-api
@@ -23,10 +29,21 @@ generate-user-api:
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	api/user_v1/user.proto
 
+# =============================Running======================================== #
+
 grpc-serve:
 	go run cmd/grpc/main.go
 
-run-dc:
-	CONFIG_PATH=$(PROD_CONFIG_PATH) $(DC_NEW) --project-name auth -f docker-compose.yaml up -d --build
-down-dc:
-	$(DC_NEW) --project-name auth -f docker-compose.yaml down --remove-orphans
+run-dc-local:
+	$(DC_NEW) --project-name auth -f docker-compose.local.yaml up -d --build
+down-dc-local:
+	$(DC_NEW) --project-name auth -f docker-compose.local.yaml down --remove-orphans
+
+
+# 🚨WARNING🚨: ОБЯЗАТЕЛЬНО ЗАДАЙ ПЕРЕМЕННЫЕ `CONFIG_PATH`
+# (если название конфига не prod.toml,то передай его в переменной `CONFIG_FILENAME`)
+# EXAMPLE🎓: CONFIG_PATH=/home/alexander/conf/prod-alex.toml CONFIG_FILENAME=prod-alex.toml make run-dc-prod
+run-dc-prod:
+	$(DC_NEW) --project-name auth -f docker-compose.production.yaml up -d --build
+down-dc-prod:
+	$(DC_NEW) --project-name auth -f docker-compose.production.yaml down --remove-orphans

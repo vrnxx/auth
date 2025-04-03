@@ -1,0 +1,45 @@
+version: "'3.8'"
+
+services:
+  http_api:
+    container_name: auth.http_api
+    build:
+      context: .
+      dockerfile: grpcAPI.Dockerfile
+    restart: on-failure
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    # Раскоментить, если нужно передавать свой существующий конфиг с локальной машины. 
+    # Обязательно запускать контейнер, указав переменную CONFIG_PATH=/path/to/config.toml
+    # volumes:
+    #   - "${CONFIG_PATH}:${CONFIG_PATH}"
+    command: [ "./crud_server" ]
+    environment:
+      # CONFIG_FILENAME - если хочешь указать какой-то другой конфиг, не dev.toml
+      - CONFIG_PATH=${CONFIG_PATH:-/root/${CONFIG_FILENAME:-dev.toml}}
+    depends_on:
+      pg:
+        condition: service_healthy
+  pg:
+    container_name: auth.postgres
+    image: postgres:17-alpine3.21
+    ports:
+      - "54321:5432"
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+
+volumes:
+  pg_data:

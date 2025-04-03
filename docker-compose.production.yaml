@@ -1,4 +1,4 @@
-version: '3'
+version: "'3.8'"
 
 services:
   http_api:
@@ -11,9 +11,13 @@ services:
       - "8000"
     ports:
       - "8000:8000"
-    command: [ "./main" ]
+    # Обязательно запускать контейнер, указав переменную CONFIG_PATH=/path/to/config.toml
+    volumes:
+      - "${CONFIG_PATH}:${CONFIG_PATH}"
+    command: [ "./crud_server" ]
     environment:
-      - CONFIG_PATH=${CONFIG_PATH:-./usr/local/bin/prod.toml}
+    # CONFIG_FILENAME - если хочешь указать какой-то другой конфиг, не prod.toml
+      - CONFIG_PATH=${CONFIG_PATH:-/root/${CONFIG_FILENAME:-prod.toml}}
     depends_on:
       pg:
         condition: service_healthy
@@ -23,9 +27,11 @@ services:
     ports:
       - "54321:5432"
     environment:
-      - POSTGRES_DB=test
-      - POSTGRES_USER=test_user
-      - POSTGRES_PASSWORD=test_password
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    env_file:
+      - .env
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
