@@ -28,9 +28,9 @@ services:
     ports:
       - "54321:5432"
     environment:
-      - POSTGRES_DB
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
+      - POSTGRES_DB=${PG_DATABASE_NAME}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
     env_file:
       - .env
     volumes:
