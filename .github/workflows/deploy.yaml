@@ -13,22 +13,23 @@ env:
   CGO_ENABLED: 0
 
 jobs:
-  services:
-    postgres:
-      image: postgres:14.5-alpine
-      env:
-        POSTGRES_DB: testDB
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-      ports:
-        - 5432:5432
-      options: >-
-        --health-cmd="pg_isready -U postgres" 
-        --health-interval=10s 
-        --health-timeout=5s 
-        --health-retries=5
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:14.5-alpine
+        env:
+          POSTGRES_DB: testDB
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
 
     steps:
       - name: Checkout repo
