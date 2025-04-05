@@ -9,3 +9,54 @@ on:
 env:
   IMAGE_NAME: "auth-service"
   CONTAINER_NAME: "auth-service-container"
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/testDB?sslmode=disable
+  CGO_ENABLED: 0
+
+jobs:
+  services:
+    postgres:
+      image: postgres:14.5-alpine
+      env:
+        POSTGRES_DB: testDB
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+      ports:
+        - 5432:5432
+      options: >-
+        --health-cmd="pg_isready -U postgres" 
+        --health-interval=10s 
+        --health-timeout=5s 
+        --health-retries=5
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.1'
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install Goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@3.24.2
+
+      - name: Run Goose Migrations
+        run: goose -dir ./internal/infrastructure/db/migrations postgres "$DATABASE_URL" up
+
+      - name: Run Tests
+        run: go test ./...
+
+      - name: Build App
+        run: go build -v ./...
