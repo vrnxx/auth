@@ -39,6 +39,14 @@ services:
       interval: 10s
       timeout: 60s
       retries: 5
+  migrations:
+    container_name: auth.migrations
+    build: 
+      context: .
+      dockerfile: migration.Dockerfile
+    depends_on:
+      pg:
+        condition: service_healthy 
 
 volumes:
   pg_data:
